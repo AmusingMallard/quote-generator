@@ -17,12 +17,10 @@ function hideLoadingSpinner() {
   }
 }
 
-// Get Quote From type.fit API
 let apiQuotes = [];
 
-// Show new quote
 function newQuote() {
-  // Pick a random quote from apiQuotes array
+  showLoadingSpinner();
   const quote = apiQuotes[Math.floor(Math.random() * apiQuotes.length)];
   if (quote.text.length > 120) {
     quoteText.classList.add("long-quote");
@@ -35,6 +33,7 @@ function newQuote() {
   } else {
     authorText.innerText = quote.author;
   }
+  hideLoadingSpinner();
 }
 
 async function getQuotes() {
@@ -43,12 +42,13 @@ async function getQuotes() {
   try {
     const response = await fetch(apiUrl);
     apiQuotes = await response.json();
-    newQuote();
-    hideLoadingSpinner();
-  } catch (error) {}
+  } catch (error) {
+    apiQuotes = localQuotes;
+  }
+  newQuote();
+  hideLoadingSpinner();
 }
 
-// Tweet quote
 function tweetQuote() {
   const quote = quoteText.innerText;
   const author = authorText.innerText;
