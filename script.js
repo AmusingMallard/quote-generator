@@ -17,33 +17,6 @@ function hideLoadingSpinner() {
   }
 }
 
-// Get Quote From Forismatic API
-async function getQuote() {
-  showLoadingSpinner();
-  const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-  const apiUrl =
-    "http://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json";
-  try {
-    const response = await fetch(proxyUrl + apiUrl);
-    const data = await response.json();
-    if (data.quoteAuthor === "") {
-      authorText.innerText = "Unknown";
-    } else {
-      authorText.innerText = data.quoteAuthor;
-    }
-    if (data.quoteText.length > 120) {
-      quoteText.classList.add("long-quote");
-    } else {
-      quoteText.classList.remove("long-quote");
-    }
-    quoteText.innerText = data.quoteText;
-    hideLoadingSpinner();
-  } catch (error) {
-    //getQuote(); // repeat request if error. Disabled for now, as proxy is overloaded.
-    console.log("whoops, no quote", error);
-  }
-}
-
 // Get Quote From type.fit API
 let apiQuotes = [];
 
@@ -51,15 +24,27 @@ let apiQuotes = [];
 function newQuote() {
   // Pick a random quote from apiQuotes array
   const quote = apiQuotes[Math.floor(Math.random() * apiQuotes.length)];
-  console.log(quote);
+  if (quote.text.length > 120) {
+    quoteText.classList.add("long-quote");
+  } else {
+    quoteText.classList.remove("long-quote");
+  }
+  quoteText.innerText = quote.text;
+  if (quote.author === "") {
+    authorText.innerText = "Unknown";
+  } else {
+    authorText.innerText = quote.author;
+  }
 }
 
 async function getQuotes() {
+  showLoadingSpinner();
   const apiUrl = "https://type.fit/api/quotes";
   try {
     const response = await fetch(apiUrl);
     apiQuotes = await response.json();
     newQuote();
+    hideLoadingSpinner();
   } catch (error) {}
 }
 
@@ -72,9 +57,8 @@ function tweetQuote() {
 }
 
 // Event listeners
-newQuoteBtn.addEventListener("click", getQuote);
+newQuoteBtn.addEventListener("click", newQuote);
 twitterBtn.addEventListener("click", tweetQuote);
 
 // On Load
-//getQuote();
 getQuotes();
