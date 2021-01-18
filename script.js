@@ -5,23 +5,21 @@ const twitterBtn = document.getElementById("twitter");
 const newQuoteBtn = document.getElementById("new-quote");
 const loader = document.getElementById("loader");
 
-// Show loader
-function loading() {
+function showLoadingSpinner() {
   loader.hidden = false;
   quoteContainer.hidden = true;
 }
 
-// Hide loader
-function complete() {
+function hideLoadingSpinner() {
   if (!loader.hidden) {
     quoteContainer.hidden = false;
     loader.hidden = true;
   }
 }
 
-// Get Quote From API
+// Get Quote From Forismatic API
 async function getQuote() {
-  loading();
+  showLoadingSpinner();
   const proxyUrl = "https://cors-anywhere.herokuapp.com/";
   const apiUrl =
     "http://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json";
@@ -39,12 +37,30 @@ async function getQuote() {
       quoteText.classList.remove("long-quote");
     }
     quoteText.innerText = data.quoteText;
-    // Stop loader, show quote
-    complete();
+    hideLoadingSpinner();
   } catch (error) {
     //getQuote(); // repeat request if error. Disabled for now, as proxy is overloaded.
     console.log("whoops, no quote", error);
   }
+}
+
+// Get Quote From type.fit API
+let apiQuotes = [];
+
+// Show new quote
+function newQuote() {
+  // Pick a random quote from apiQuotes array
+  const quote = apiQuotes[Math.floor(Math.random() * apiQuotes.length)];
+  console.log(quote);
+}
+
+async function getQuotes() {
+  const apiUrl = "https://type.fit/api/quotes";
+  try {
+    const response = await fetch(apiUrl);
+    apiQuotes = await response.json();
+    newQuote();
+  } catch (error) {}
 }
 
 // Tweet quote
@@ -60,4 +76,5 @@ newQuoteBtn.addEventListener("click", getQuote);
 twitterBtn.addEventListener("click", tweetQuote);
 
 // On Load
-getQuote();
+//getQuote();
+getQuotes();
